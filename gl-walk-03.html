@@ -14,7 +14,7 @@
     uniform float uTime;
 
     void main() {
-      gl_PointSize = 2.0; // + cos(uTime * 0.3) + sin(uTime * 0.6);
+      gl_PointSize = 2.0;
       gl_Position = aPosition;
     }
   </script>
@@ -22,7 +22,6 @@
   <script  type="x-shader/x-fragment" id="fs">
     precision mediump float;
 
-    // uniform float uTime;
     uniform vec4 uColor;
 
     void main() {
@@ -30,40 +29,11 @@
     }
   </script>
 
+  <script src="assets/gl-walk-utils.js"></script>
   <script src="assets/noise.js"></script>
 
   <script>
     window.addEventListener('load', function () {
-
-      // utility methods
-      // ---------------
-
-      function createShader(gl, src, type) {
-        var shader = gl.createShader(type);
-        gl.shaderSource(shader, src);
-        gl.compileShader(shader);
-        var err;
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-          err = gl.getShaderInfoLog(shader);
-          gl.deleteShader(shader);
-          throw err;
-        }
-        return shader;
-      }
-
-      function randomRange(min, max) {
-        return min + Math.random() * (max - min);
-      }
-
-      function map(n, start1, stop1, start2, stop2) {
-        return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
-      }
-
-
-      // ---------------
-
-      // TODO: use an array of random walkers instead of just one
-
       var winW = window.innerWidth;
       var winH = window.innerHeight;
       var canvas = document.getElementById('canvas');
@@ -110,10 +80,10 @@
         var src, vShader, fShader, progam;
 
         src = document.getElementById('vs').textContent;
-        vShader = createShader(gl, src, gl.VERTEX_SHADER);
+        vShader = utils.createShader(gl, src, gl.VERTEX_SHADER);
 
         src = document.getElementById('fs').textContent;
-        fShader = createShader(gl, src, gl.FRAGMENT_SHADER);
+        fShader = utils.createShader(gl, src, gl.FRAGMENT_SHADER);
 
         var program = gl.createProgram();
         gl.attachShader(program, vShader);
@@ -176,27 +146,19 @@
 
       function createParticle(w, h) {
         return {
-          x: w / 2 + randomRange(-2, 2),
-          y: h / 2 + randomRange(-2, 2),
+          x: w / 2 + utils.randomRange(-2, 2),
+          y: h / 2 + utils.randomRange(-2, 2),
           w: winW,
           h: winH,
-          tx: randomRange(-10, 10),
-          ty: randomRange(-100, 100),
+          tx: utils.randomRange(-10, 10),
+          ty: utils.randomRange(-100, 100),
           life: 1000
         };
       }
 
       function update() {
-
-        // 1st version
-        // var speedX = randomRange(-5, 5);
-        // var speedY = randomRange(-5, 5);
-        // particle.x += speedX;
-        // particle.y += speedY;
-
-
-        particle.x = map(noise(particle.tx), 0, 1, 0, particle.w);
-        particle.y = map(noise(particle.ty), 0, 1, 0, particle.h);
+        particle.x = utils.map(noise(particle.tx), 0, 1, 0, particle.w);
+        particle.y = utils.map(noise(particle.ty), 0, 1, 0, particle.h);
         particle.tx += 0.01;
         particle.ty += 0.01;
 
@@ -220,18 +182,18 @@
           // reset/randomize
           aPositions = [];
 
-          particle.x =  winW / 2 + randomRange(-2, 2);
-          particle.y =  winH / 2 + randomRange(-2, 2);
+          particle.x =  winW / 2 + utils.randomRange(-2, 2);
+          particle.y =  winH / 2 + utils.randomRange(-2, 2);
           particle.w =  winW;
           particle.h =  winH;
-          particle.tx =  randomRange(-10, 10);
-          particle.ty =  randomRange(-100, 100);
+          particle.tx =  utils.randomRange(-10, 10);
+          particle.ty =  utils.randomRange(-100, 100);
           particle.life = 1000;
         }
 
         aPositions.push(x, y);
 
-        var alpha = map(particle.life, 0, 1000, 0, 1);
+        var alpha = utils.map(particle.life, 0, 1000, 0, 1);
         aColors.push(1.0, 1.0, 1.0, alpha);
       };
 

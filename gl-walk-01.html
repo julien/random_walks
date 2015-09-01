@@ -26,36 +26,10 @@
     }
   </script>
 
-  <script src="assets/noise.js"></script>
+  <script src="assets/gl-walk-utils.js"></script>
 
   <script>
     window.addEventListener('load', function () {
-
-      // utility methods
-      // ---------------
-
-      function createShader(gl, src, type) {
-        var shader = gl.createShader(type);
-        gl.shaderSource(shader, src);
-        gl.compileShader(shader);
-        var err;
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-          err = gl.getShaderInfoLog(shader);
-          gl.deleteShader(shader);
-          throw err;
-        }
-        return shader;
-      }
-
-      function randomRange(min, max) {
-        return min + Math.random() * (max - min);
-      }
-
-      function map(n, start1, stop1, start2, stop2) {
-        return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
-      }
-
-      // ---------------
 
       var winW = window.innerWidth;
       var winH = window.innerHeight;
@@ -101,10 +75,10 @@
         var src, vShader, fShader, progam;
 
         src = document.getElementById('vs').textContent;
-        vShader = createShader(gl, src, gl.VERTEX_SHADER);
+        vShader = utils.createShader(gl, src, gl.VERTEX_SHADER);
 
         src = document.getElementById('fs').textContent;
-        fShader = createShader(gl, src, gl.FRAGMENT_SHADER);
+        fShader = utils.createShader(gl, src, gl.FRAGMENT_SHADER);
 
         var program = gl.createProgram();
         gl.attachShader(program, vShader);
@@ -157,28 +131,23 @@
 
       function createParticle(w, h) {
         return {
-          x: w / 2 + randomRange(-2, 2),
-          y: h / 2 + randomRange(-2, 2),
+          x: w / 2 + utils.randomRange(-2, 2),
+          y: h / 2 + utils.randomRange(-2, 2),
           w: winW,
           h: winH,
           tx: 0,
-          ty: randomRange(-100, 100),
+          ty: utils.randomRange(-100, 100),
           life: 400
         };
       }
 
       function update() {
 
-        var speedX = randomRange(-5, 5);
-        var speedY = randomRange(-5, 5);
+        var speedX = utils.randomRange(-5, 5);
+        var speedY = utils.randomRange(-5, 5);
         particle.x += speedX;
         particle.y += speedY;
 
-        // particle.x = map(noise(particle.tx), 0, 1, 0, particle.w);
-        // particle.y = map(noise(particle.ty), 0, 1, 0, particle.h);
-        // particle.tx += 0.01;
-        // particle.ty += 0.01;
-        //
         if (particle.x > particle.w) {
           particle.x = 0;
         } else if (particle.x < 0) {
